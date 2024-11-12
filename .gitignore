@@ -1,0 +1,10 @@
+
+.vs/MaintenanceTracker/config/applicationhost.config
+*.v2
+*.vsidx
+.vs/MaintenanceTracker/v17/.suo
+.vs/MaintenanceTracker/v17/DocumentLayout.json
+*.bin
+/bin
+*.user
+/obj
