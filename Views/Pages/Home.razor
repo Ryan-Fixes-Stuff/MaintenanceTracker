@@ -1,0 +1,158 @@
+﻿@using Radzen.Blazor
+@using MaintenanceTracker.Views.Modals;
+@inject HomePageViewModel viewModel
+@inject DataModel dataModel
+@inject DialogService dialogService
+@inject NotificationService notifyService
+@rendermode InteractiveServer
+@page "/"
+
+<PageTitle>Vehicle Management Portal</PageTitle>
+
+ 
+<div class="mainForm">
+    <div class="bgColumn" style="grid-column:1;"> 
+    </div>     
+    <div style="grid-column:2;">
+        <div class="contentColumn">
+            <div style="grid-row:1">
+                <br />
+                <h2>Welcome to the Vehicle Management Portal!</h2> 
+            </div>
+            <RadzenDataGrid Style="grid-row:3;align-self:start;" @ref="viewModel.DataGrid" AllowAlternatingRows="true" AllowFiltering="true" AllowSorting="true" 
+            TItem="Vehicle" Data="viewModel.VehicleList" >
+                <HeaderTemplate>
+                    <RadzenLabel Style="font-size:30pt;padding-left:20px" Text="Vehicle Viewer"></RadzenLabel>
+                </HeaderTemplate>
+                <Columns>
+                    <RadzenDataGridColumn Property="@nameof(Vehicle.VIN)" TextAlign="TextAlign.Center" Title="VIN"  >
+                        <FooterTemplate>
+                            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Vehicle"
+                                          Click="@(args => LaunchVehicleModal(new Vehicle(), true))" Disabled="viewModel.VehicleList.Count >= 10" />
+                        </FooterTemplate>
+                    </RadzenDataGridColumn> 
+                    <RadzenDataGridColumn Property="@nameof(Vehicle.Make)" TextAlign="TextAlign.Center" Title="Make"/>
+                    <RadzenDataGridColumn Property="@nameof(Vehicle.Model)" TextAlign="TextAlign.Center" Title="Model"/>
+                    <RadzenDataGridColumn Width="10%" Property="@nameof(Vehicle.Year)" TextAlign="TextAlign.Center" Title="Year"/>
+                    <RadzenDataGridColumn Property="@nameof(Vehicle.Price)"FormatString="{0:C}"  TextAlign="TextAlign.Center" Title="Price"/>
+                    <RadzenDataGridColumn Width="10%" Context="Vehicle" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                        <Template Context="Vehicle">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => LaunchVehicleModal(Vehicle, newVehicle: false))" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => AcceptDelete(Vehicle))" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+            <div style="grid-row:4">
+                @*Closing Div for anything remaining*@
+            </div>
+        </div>       
+    </div>
+    <div class="bgColumn" style="grid-column:3;">
+    </div>
+
+</div>
+
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // call initial data load
+        if (firstRender)
+        {
+            await viewModel.LoadData();
+            Log.Information("{Routine}: Fresh logon to MaintenanceTracker", "OnAfterRenderAsync");
+            StateHasChanged();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }   
+
+    #region ViewFunctions
+    /// <summary>
+    /// Function to call ViewModel validation and submission logic, and route Toast style notification back to user
+    /// Could be re-worked to include delegate, but this use case only has 1 type of input possible
+    /// </summary>
+    /// <param name="vehicle"></param>
+    /// <returns></returns>
+    private async Task AcceptChange(Vehicle vehicle)
+    {
+        (string msg, NotificationSeverity severity) res = await viewModel.RowChangedHandler(vehicle);
+        notifyService.Notify(new NotificationMessage
+            {
+                Severity = res.severity,
+                Summary = res.msg,
+                Duration = 4000,
+                CloseOnClick = true
+            });
+    }
+
+    private async Task LaunchVehicleModal(Vehicle vehicle, bool newVehicle)
+    {
+        //TODO: Make sure there are no references passed, only copies, and act on the db itself
+        viewModel.OutgoingVehicle = (Vehicle)vehicle.Shallowcopy();
+        var response = await dialogService.OpenAsync<VehicleEntryModal>("Vehicle Entry Modal", new Dictionary<string, object>()
+        {
+            {
+                "vehicle", vehicle.Shallowcopy()
+            },
+            {
+                "newVehicle", newVehicle
+            },
+            {
+                "dialogService", dialogService
+            }
+        }, new DialogOptions()
+        {
+            Resizable = false,
+            Width = "25%",
+            AutoFocusFirstElement = true,
+            CloseDialogOnOverlayClick = true
+        });
+
+        if (response != null)
+        {
+            await AcceptChange((Vehicle)response);
+        }
+        else
+        {
+            viewModel.CancelRowEdit();
+            notifyService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = (newVehicle ? "Vehicle Creation Cancelled" : "Vehicle Update Cancelled"),
+                    Duration = 3000,
+                    CloseOnClick = true
+                });
+        }
+    }
+
+    private async void AcceptDelete(Vehicle vehicle)
+    {
+        var _confirmSubmission = await dialogService.Confirm($"Confirm Deletion of Vehicle {vehicle.VIN}?", "Vehicle Deletion Confirmation",
+                                                  new ConfirmOptions()
+                                                      {
+                                                          OkButtonText = "Yes",
+                                                          CancelButtonText = "No",
+                                                      });
+        if (_confirmSubmission.HasValue && _confirmSubmission.Value == true)
+        {
+            (string msg, NotificationSeverity severity) res = await viewModel.DeleteRow(vehicle);
+            notifyService.Notify(new NotificationMessage
+                {
+                    Severity = res.severity,
+                    Summary = res.msg,
+                    Duration = 4000,
+                    CloseOnClick = true
+                });
+                await viewModel.LoadData();
+                StateHasChanged();
+        }
+    }
+    #endregion ViewFunctions
+    
+}
+
+

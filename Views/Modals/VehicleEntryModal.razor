@@ -1,0 +1,90 @@
+﻿@page "/testModal" 
+@using MaintenanceTracker.Models
+
+<EditForm Model="vehicle">
+    <DataAnnotationsValidator/>
+    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center">
+
+        @if (newVehicle)
+        {
+            <h3>New Vehicle Entry</h3>
+        }
+        else
+        {
+            <h3>Update Vehicle Entry</h3>
+        }
+        <RadzenFormField Text="Enter VIN">
+            <RadzenTextBox MaxLength="17" AutoCompleteType="AutoCompleteType.Off" oninput="this.value=this.value.toUpperCase()" @bind-Value="vehicle.VIN" Placeholder="Enter Vehicle VIN"
+                            Style="width:200px; display: block" Name="VIN" aria-label="Enter VIN" />
+        </RadzenFormField> 
+        <RadzenFormField Text="Enter Make">
+            <RadzenTextBox AutoCompleteType="AutoCompleteType.Off" MaxLength="15" @bind-Value="vehicle.Make" Style="width:200px; display: block" 
+                Name="Make" aria-label="Enter Vehicle Make" />
+        </RadzenFormField>
+        <RadzenFormField Text="Enter Model">
+            <RadzenTextBox AutoCompleteType="AutoCompleteType.Off" MaxLength="20" @bind-Value="vehicle.Model" Style="width:200px; display: block" 
+                Name="Model" aria-label="Enter Vehicle Model" />
+        </RadzenFormField>
+
+        <RadzenFormField Text="Enter Year">
+            <RadzenNumeric AutoCompleteType="AutoCompleteType.Off" @bind-Value="vehicle.Year" Style="width:200px; display: block" 
+                Name="Year" aria-label="Enter Vehicle Year" />
+        </RadzenFormField>
+
+        <RadzenFormField Text="Enter Price">
+            <RadzenNumeric Format="c" AutoCompleteType="AutoCompleteType.Off" @bind-Value="vehicle.Price" Style="width:200px; display: block" 
+                Name="Price" aria-label="Enter Vehicle Price" />
+        </RadzenFormField>
+
+        <ValidationSummary/>
+        <RadzenButton Text="Submit Vehicle" Click="onSubmit"></RadzenButton>
+    </RadzenStack>
+    
+
+</EditForm>
+@code {
+    [Parameter]
+    public Vehicle vehicle { get; set; } = new();
+
+    [Parameter]
+    public bool newVehicle { get; set; }
+
+    [Parameter]
+    public DialogService? dialogService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (vehicle == null)
+        {
+            vehicle = new();
+        }
+    }
+
+    private void onSubmit()
+    {
+        if (!vehicle.Validate())
+        {
+           dialogService.Alert(message: "Please provide valid fields before submission", title: "Validation Error");
+        } else
+        {
+            onClose();
+        }
+    }
+
+    private void onClose()
+    {
+        if (vehicle.Validate())
+        {
+            dialogService.Close(vehicle);
+        } else
+        {
+            dialogService.Close();
+        }
+    }
+}

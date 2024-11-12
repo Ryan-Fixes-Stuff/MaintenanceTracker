@@ -1,0 +1,27 @@
+﻿
+
+
+.mainForm {
+    display:grid;
+    height: 100%;
+    width: 100%;
+    grid-template-columns: 7% 86% 7%;
+    grid-template-rows: auto;
+    text-align:center;
+    font-size:24px;
+}
+
+.bgColumn {
+    background: #d9d9d9;
+    height: 100%;
+}
+
+
+.contentColumn {
+    display:grid;
+    grid-template-rows: 1fr 1fr 20fr 1fr;
+    grid-template-columns: auto;
+    text-align: center;
+    align-items: center;
+    padding: 0px 10px 0px 10px;
+}
