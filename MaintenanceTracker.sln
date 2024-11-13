@@ -5,7 +5,12 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaintenanceTracker", "MaintenanceTracker\MaintenanceTracker.csproj", "{A1179CC4-0E3F-4D12-8032-CE853C658541}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaintenanceTracker.Tests", "MaintenanceTracker.Tests\MaintenanceTracker.Tests.csproj", "{14B67A37-C0BD-42A7-A3BD-E1F5F92A8F19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaintenanceTracker.Tests", "MaintenanceTracker.Tests\MaintenanceTracker.Tests.csproj", "{14B67A37-C0BD-42A7-A3BD-E1F5F92A8F19}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1A49998-218A-4D4C-88E3-B58CA4A11EB0}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
