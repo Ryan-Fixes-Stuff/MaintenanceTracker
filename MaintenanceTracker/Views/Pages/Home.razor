@@ -17,18 +17,19 @@
         <div class="contentColumn">
             <div style="grid-row:1">
                 <br />
-                <h2>Welcome to the Vehicle Management Portal!</h2> 
+                <h1>Welcome to the Vehicle Management Portal</h1> 
             </div>
             <RadzenDataGrid Style="grid-row:3;align-self:start;" @ref="viewModel.DataGrid" AllowAlternatingRows="true" AllowFiltering="true" AllowSorting="true" 
-            TItem="Vehicle" Data="viewModel.VehicleList" >
+            TItem="Vehicle" Data="viewModel.VehicleList">
                 <HeaderTemplate>
-                    <RadzenLabel Style="font-size:30pt;padding-left:20px" Text="Vehicle Viewer"></RadzenLabel>
+                    <RadzenLabel Style="font-size:30pt;padding-left:20px" Text="Inventory Manager"></RadzenLabel>
                 </HeaderTemplate>
                 <Columns>
-                    <RadzenDataGridColumn Property="@nameof(Vehicle.VIN)" TextAlign="TextAlign.Center" Title="VIN"  >
+                    @*Define Grid Columns based on Vehicle properties*@
+                    <RadzenDataGridColumn Property="@nameof(Vehicle.VIN)" TextAlign="TextAlign.Center" Title="VIN">
                         <FooterTemplate>
-                            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Vehicle"
-                                          Click="@(args => LaunchVehicleModal(new Vehicle(), true))" Disabled="viewModel.VehicleList.Count >= 10" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium" Icon="add_circle" Text="Add New Vehicle"
+                                          Click="@(args => LaunchVehicleModal(new Vehicle(), true))" Disabled="viewModel.VehicleList.Count >= 10"/>
                         </FooterTemplate>
                     </RadzenDataGridColumn> 
                     <RadzenDataGridColumn Property="@nameof(Vehicle.Make)" TextAlign="TextAlign.Center" Title="Make"/>
@@ -91,9 +92,8 @@
 
     private async Task LaunchVehicleModal(Vehicle vehicle, bool newVehicle)
     {
-        //TODO: Make sure there are no references passed, only copies, and act on the db itself
         viewModel.OutgoingVehicle = (Vehicle)vehicle.Shallowcopy();
-        var response = await dialogService.OpenAsync<VehicleEntryModal>("Vehicle Entry Modal", new Dictionary<string, object>()
+        var response = await dialogService.OpenAsync<VehicleEntryModal>("Vehicle Entry", new Dictionary<string, object>()
         {
             {
                 "vehicle", vehicle.Shallowcopy()
@@ -147,7 +147,6 @@
                     Duration = 4000,
                     CloseOnClick = true
                 });
-                await viewModel.LoadData();
                 StateHasChanged();
         }
     }

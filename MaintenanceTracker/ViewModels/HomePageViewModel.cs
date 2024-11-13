@@ -45,14 +45,16 @@ namespace MaintenanceTracker.ViewModels
             {
                 if (VehicleList.Contains(vehicle))
                 {
-                    //delete from local db, then refresh DataGrid (shouldn't have to via OnPropertyChanged
+                    //delete from local db, then refresh VehicleList 
                     int numRemoved = await DataModel.DeleteVehicle(vehicle);
                     if (numRemoved == 1)
                     {
+                        await LoadData();
                         Log.Information("{Routine}: Vehicle " + vehicle.VIN + " Successfull removed from system", "DeleteRow");
                         return ("Vehicle Vehicle Successfully Deleted", NotificationSeverity.Success);
                     } else
                     {
+                        await LoadData();
                         Log.Error("{Routine}: Vehicle " + vehicle.VIN + " Unable to be deleted", "DeleteRow");
                         return ($"Unable to remove vehicle {vehicle.VIN}", NotificationSeverity.Error);
                     }

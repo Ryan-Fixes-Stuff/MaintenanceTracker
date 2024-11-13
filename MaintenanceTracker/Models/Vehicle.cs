@@ -5,7 +5,7 @@ namespace MaintenanceTracker.Models
     {
         [Required]
         [MaxLength(17), MinLength(17)]
-        [RegularExpression("[A-HJ-NPR-Z0-9]{17}", ErrorMessage = "17 Character VIN is required")]
+        [RegularExpression("[A-HJ-NPR-Z0-9]{17}", ErrorMessage = "17 Character Valid VIN is required")]
         public string VIN { get; set; } = string.Empty;
         [Required]
         [MaxLength(15), MinLength(1)]

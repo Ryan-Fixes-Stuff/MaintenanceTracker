@@ -16,4 +16,24 @@
     * Blazor Component and CSS Theme Library used to style page, as well as provide custom interactivity within the app
     * Examples include Toast-style notifications, Modal handling, DataGrid components, Entry Fields, etc.
 
+## Design Principles
+Application is built around MVVM (Model-View-ViewModel) architecture. This form of separation allows for excellent separation of UI, state data, and external model calls, and is built with Dependency Injection in mind. The breakdown of these three is as follows:
+* Model
+    * Data-focused functions that are used for manipulating data, handling CRUD operations, and returning meaningful results to the application
+* View
+    * Collection of UI components that are stripped of as much logic and data as possible.
+    * For Blazor projects, these can be separated into:
+        * Layout (MainLayout.razor, any other windows that host nested Blazor Components at a top-level)
+        * Modals
+        * Pages
+* ViewModel
+    * In-Between Layer that handles calls to Model functions, and hosts data that is bound to Views
+    * This keeps your views lean and your Models specific and swappable if injected as an interface
+    * Assists in testability as tests can be written fully agnostic of any UI concerns
+
+## Principles Not Applied 
+Some things felt overkill to apply to such a small project, but for a larger scale project there are a couple things that would be encourage to do. These include:
+* Extracting interface from DataModel as in IDataModel, e
+
+
 
