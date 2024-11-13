@@ -14,8 +14,6 @@ builder.Services.AddScoped<HomePageViewModel>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddRadzenComponents();
-Console.WriteLine(Environment.CurrentDirectory + @"\Data\local.db");
-Console.WriteLine(@"C:\Users\rxbart-adm\source\personal scripts\MaintenanceTracker\Data\local.db");
 builder.Host.UseSerilog((context, services, configuration) => configuration
                 .MinimumLevel.Information().WriteTo.SQLite(Environment.CurrentDirectory + @"\Data\local.db"));
 var app = builder.Build();

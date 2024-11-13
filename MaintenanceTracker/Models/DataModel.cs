@@ -26,6 +26,10 @@ namespace MaintenanceTracker.Models
 
         public static async Task<int> CreateVehicle(Vehicle vehicle)
         {
+            if (!vehicle.Validate())
+            {
+                return -1;
+            }
             try
             {
                 using (IDbConnection con = new SqliteConnection(_dbConnString))
@@ -43,6 +47,10 @@ namespace MaintenanceTracker.Models
 
         public static async Task<int> DeleteVehicle(Vehicle vehicle)
         {
+            if (!vehicle.Validate())
+            {
+                return -1;
+            }
             try
             {
                 using (IDbConnection con = new SqliteConnection(_dbConnString))
@@ -59,6 +67,10 @@ namespace MaintenanceTracker.Models
 
         public static async Task<int> UpdateVehicle(Vehicle vehicle, string previousVIN)
         {
+            if (!vehicle.Validate())
+            {
+                return -1;
+            }
             try
             {
                 using (IDbConnection con = new SqliteConnection(_dbConnString))
