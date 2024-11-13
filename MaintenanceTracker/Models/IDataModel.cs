@@ -7,5 +7,6 @@ namespace MaintenanceTracker.Models
         Task<int> DeleteVehicle(Vehicle vehicle);
         List<Vehicle> ReadVehicles();
         Task<int> UpdateVehicle(Vehicle vehicle, string previousVIN);
+        Task<int> DeleteVehicleWithPrejudice(Vehicle vehicle);
     }
 }

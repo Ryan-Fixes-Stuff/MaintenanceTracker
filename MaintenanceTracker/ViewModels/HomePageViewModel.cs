@@ -39,6 +39,14 @@ namespace MaintenanceTracker.ViewModels
         public Task LoadData()
         {
             VehicleList = dm.ReadVehicles();
+            // check for any invalid instances that may have been inserted into the db
+            foreach (Vehicle v in VehicleList)
+            {
+                if (!v.Validate())
+                {
+                    dm.DeleteVehicleWithPrejudice(v);
+                }
+            }
             return Task.CompletedTask;
         }
 
@@ -72,6 +80,7 @@ namespace MaintenanceTracker.ViewModels
                 return ("Exception thrown when removing vehicle " + vehicle.VIN, NotificationSeverity.Error);
             }           
         }
+
 
         public void CancelRowEdit()
         {

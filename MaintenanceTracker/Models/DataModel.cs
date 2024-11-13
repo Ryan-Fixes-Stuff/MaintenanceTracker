@@ -86,6 +86,28 @@ namespace MaintenanceTracker.Models
             }
         }
 
+        /// <summary>
+        /// Function called when reading from Database and encountering any non-valid vehicle entries.
+        /// Differs from DeleteVehicle as that only applies to valid entries
+        /// </summary>
+        /// <param name="vehicle"></param>
+        /// <returns></returns>
+        public async Task<int> DeleteVehicleWithPrejudice(Vehicle vehicle)
+        {
+            try
+            {
+                using (IDbConnection con = new SqliteConnection(_dbConnString))
+                {
+                    int res = await con.ExecuteAsync("DELETE FROM VEHICLE WHERE [VIN] = @VIN, [MAKE] = @Make, [MODEL] = @Model, [YEAR] = @Year, [PRICE] = @Price", vehicle);
+                    return res;
+                }
+            } catch (Exception e)
+            {
+                Log.Error("Exception thrown in {Routine} for vehicle  " + vehicle.VIN + ": " + e.Message, "DeleteVehicleWithPrejudice");
+                return -1;
+            }
+        }
+
         public DataModel(IConfiguration config)
         {
             _dbConnString = config.GetConnectionString("Default") ?? "error";
