@@ -15,6 +15,9 @@
 6. Radzen Blazor
     * Blazor Component and CSS Theme Library used to style page, as well as provide custom interactivity within the app
     * Examples include Toast-style notifications, Modal handling, DataGrid components, Entry Fields, etc.
+7. XUnit/BUnit
+    * XUnit testing on both Model and View components to demonstrate value of MVVM architecture
+    * BUnit (Blazor Unit Test) for rendering Blazor components in an XUnit test, and testing areas like Component Parameter validation, presence of certain HTML, etc.
 
 ## Design Principles
 Application is built around MVVM (Model-View-ViewModel) architecture. This form of separation allows for excellent separation of UI, state data, and external model calls, and is built with Dependency Injection in mind. The breakdown of these three is as follows:
@@ -31,9 +34,7 @@ Application is built around MVVM (Model-View-ViewModel) architecture. This form 
     * This keeps your views lean and your Models specific and swappable if injected as an interface
     * Assists in testability as tests can be written fully agnostic of any UI concerns
 
-## Principles Not Applied 
-Some things felt overkill to apply to such a small project, but for a larger scale project there are a couple things that would be encourage to do. These include:
-* Extracting interface from DataModel as in IDataModel, e
+
 
 
 

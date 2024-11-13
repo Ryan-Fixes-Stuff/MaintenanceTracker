@@ -5,14 +5,21 @@ using Radzen;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var config = new ConfigurationBuilder()
+           .SetBasePath(Directory.GetCurrentDirectory())
+           .AddJsonFile("appsettings.json", false, true)
+           .Build();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddScoped<DataModel>();
-builder.Services.AddScoped<HomePageViewModel>();
+// keep instance of IDataModel accessible for Blazor Components in case of injection need
+builder.Services.AddScoped<IDataModel, DataModel>();
+// pass a DataModel constructor for the ViewModel
+builder.Services.AddScoped(provider => new HomePageViewModel(new DataModel(config)));
+// configure notification/modal services
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<DialogService>();
+// configure Serilog/SQLite logging
 builder.Services.AddRadzenComponents();
 builder.Host.UseSerilog((context, services, configuration) => configuration
                 .MinimumLevel.Information().WriteTo.SQLite(Environment.CurrentDirectory + @"\Data\local.db"));

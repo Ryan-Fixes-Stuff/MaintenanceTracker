@@ -4,10 +4,10 @@ using Microsoft.Data.Sqlite;
 using Serilog;
 namespace MaintenanceTracker.Models
 {
-    public class DataModel
+    public class DataModel : IDataModel
     {
-        private static string _dbConnString = "Default";
-        public static List<Vehicle> ReadVehicles()
+        private string _dbConnString = "Default";
+        public List<Vehicle> ReadVehicles()
         {
             try
             {
@@ -24,7 +24,7 @@ namespace MaintenanceTracker.Models
             }
         }
 
-        public static async Task<int> CreateVehicle(Vehicle vehicle)
+        public async Task<int> CreateVehicle(Vehicle vehicle)
         {
             if (!vehicle.Validate())
             {
@@ -45,7 +45,7 @@ namespace MaintenanceTracker.Models
             }
         }
 
-        public static async Task<int> DeleteVehicle(Vehicle vehicle)
+        public async Task<int> DeleteVehicle(Vehicle vehicle)
         {
             if (!vehicle.Validate())
             {
@@ -65,7 +65,7 @@ namespace MaintenanceTracker.Models
             }
         }
 
-        public static async Task<int> UpdateVehicle(Vehicle vehicle, string previousVIN)
+        public async Task<int> UpdateVehicle(Vehicle vehicle, string previousVIN)
         {
             if (!vehicle.Validate())
             {

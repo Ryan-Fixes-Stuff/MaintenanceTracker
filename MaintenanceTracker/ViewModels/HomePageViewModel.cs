@@ -23,19 +23,22 @@ namespace MaintenanceTracker.ViewModels
         [ObservableProperty]
         public RadzenDataGrid<Vehicle> dataGrid;
 
+        public IDataModel dm;
+
         #endregion Parameters
 
-        public HomePageViewModel()
+        public HomePageViewModel(IDataModel DM)
         {
             vehicleList = [];
             DataGrid = new();
             OutgoingVehicle = new Vehicle();
+            dm = DM;
         }
 
         #region DataFunctions
         public Task LoadData()
         {
-            VehicleList = DataModel.ReadVehicles();
+            VehicleList = dm.ReadVehicles();
             return Task.CompletedTask;
         }
 
@@ -46,7 +49,7 @@ namespace MaintenanceTracker.ViewModels
                 if (VehicleList.Contains(vehicle))
                 {
                     //delete from local db, then refresh VehicleList 
-                    int numRemoved = await DataModel.DeleteVehicle(vehicle);
+                    int numRemoved = await dm.DeleteVehicle(vehicle);
                     if (numRemoved == 1)
                     {
                         await LoadData();
@@ -87,7 +90,7 @@ namespace MaintenanceTracker.ViewModels
             if (!OutgoingVehicle.Validate())
             {
                 // Row is changed from a fresh insert, no valid vehicle previously in list
-                int numInserted = await DataModel.CreateVehicle(vehicle);
+                int numInserted = await dm.CreateVehicle(vehicle);
                 if (numInserted == 1)
                 {
                     await LoadData();
@@ -107,7 +110,7 @@ namespace MaintenanceTracker.ViewModels
                     return ($"No Updates Needed for Vehicle {vehicle.VIN}", NotificationSeverity.Info);
                 }
                 // editing exising row, call Update logic
-                int numUpdated = await DataModel.UpdateVehicle(vehicle, OutgoingVehicle.VIN);
+                int numUpdated = await dm.UpdateVehicle(vehicle, OutgoingVehicle.VIN);
                 if (numUpdated == 1)
                 {
                     // sync list to db 
