@@ -1,8 +1,6 @@
 
-.vs/MaintenanceTracker/config/applicationhost.config
 *.v2
 *.vsidx
-/MaintenanceTracker/.vs/MaintenanceTracker/v17/.suo
 .vs/MaintenanceTracker/v17/DocumentLayout.json
 *.bin
 /MaintenanceTracker/bin
@@ -11,3 +9,4 @@
 /MaintenanceTracker.Tests/obj
 /MaintenanceTracker.Tests/bin
 /.vs
+MaintenanceTracker/.vs
