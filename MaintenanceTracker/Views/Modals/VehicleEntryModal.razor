@@ -4,7 +4,6 @@
 <EditForm Model="vehicle">
     <DataAnnotationsValidator/>
     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center">
-
         @if (newVehicle)
         {
             <h3>New Vehicle Entry</h3>
@@ -49,13 +48,12 @@
     [Parameter]
     public bool newVehicle { get; set; }
 
+    /// <summary>
+    /// Allows us to return information from the modal back to the caller service.
+    /// Initializing to new() as a worst-case allows us to gracefully close the modal regardless of destination
+    /// </summary>
     [Parameter]
-    public DialogService? dialogService { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-    }
+    public DialogService dialogService { get; set; } = new(null, null);
 
     protected override void OnParametersSet()
     {
@@ -64,13 +62,20 @@
         {
             vehicle = new();
         }
+        if (dialogService == null)
+        {
+            dialogService = new(null, null);
+        }
     }
 
     public void onSubmit()
     {
         if (!vehicle.Validate())
         {
-           dialogService.Alert(message: "Please provide valid fields before submission", title: "Validation Error");
+            if (dialogService is not null)
+            {
+                dialogService.Alert(message: "Please provide valid fields before submission", title: "Validation Error");
+            }
         } else
         {
             onClose();
@@ -81,10 +86,10 @@
     {
         if (vehicle.Validate())
         {
-            dialogService.Close(vehicle);
+            if (dialogService is not null) dialogService.Close(vehicle);
         } else
         {
-            dialogService.Close();
+            if (dialogService is not null) dialogService.Close();
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿@using Radzen.Blazor
-@using MaintenanceTracker.Views.Modals;
+﻿@using MaintenanceTracker.Views.Modals;
 @inject HomePageViewModel viewModel
+@*Inject IDataModel for show only, is not used in a View-style component like this*@
 @inject IDataModel dataModel
 @inject DialogService dialogService
 @inject NotificationService notifyService
@@ -19,7 +19,7 @@
                 <br />
                 <h1>Welcome to the Vehicle Management Portal</h1> 
             </div>
-            <RadzenDataGrid Style="grid-row:3;align-self:start;" @ref="viewModel.DataGrid" AllowAlternatingRows="true" AllowFiltering="true" AllowSorting="true" 
+            <RadzenDataGrid Style="grid-row:3;align-self:start;" AllowAlternatingRows="true" AllowFiltering="true" AllowSorting="true" 
             TItem="Vehicle" Data="viewModel.VehicleList">
                 <HeaderTemplate>
                     <RadzenLabel Style="font-size:30pt;padding-left:20px" Text="Inventory Manager"></RadzenLabel>
@@ -53,12 +53,12 @@
     </div>
     <div class="bgColumn" style="grid-column:3;">
     </div>
-
 </div>
 
 
 @code {
 
+    #region LifecycleEvents
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         // call initial data load
@@ -70,10 +70,11 @@
         }
         await base.OnAfterRenderAsync(firstRender);
     }   
+    #endregion LifecycleEvents
 
     #region ViewFunctions
     /// <summary>
-    /// Function to call ViewModel validation and submission logic, and route Toast style notification back to user
+    /// Function to call ViewModel validation and submission logic, and route Toast notification back to user
     /// Could be re-worked to include delegate, but this use case only has 1 type of input possible
     /// </summary>
     /// <param name="vehicle"></param>
@@ -90,6 +91,13 @@
             });
     }
 
+    /// <summary>
+    /// Method handles all instances of the VehicleEntryModal, either for new or updated Vehicle.
+    /// Gets result back based on validation and exit state, and calls AcceptChange() if valid
+    /// </summary>
+    /// <param name="vehicle"></param>
+    /// <param name="newVehicle"></param>
+    /// <returns></returns>
     private async Task LaunchVehicleModal(Vehicle vehicle, bool newVehicle)
     {
         viewModel.OutgoingVehicle = (Vehicle)vehicle.Shallowcopy();
@@ -129,6 +137,11 @@
         }
     }
 
+    /// <summary>
+    /// Simple modal confirmation dialogue for deleting a particular Vehicle from the db.
+    /// Calls it's own ViewModel function if confirmed yes, and reports result to user via Toast notification
+    /// </summary>
+    /// <param name="vehicle"></param>
     private async void AcceptDelete(Vehicle vehicle)
     {
         var _confirmSubmission = await dialogService.Confirm($"Confirm Deletion of Vehicle {vehicle.VIN}?", "Vehicle Deletion Confirmation",

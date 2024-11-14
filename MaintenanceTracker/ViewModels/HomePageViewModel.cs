@@ -1,8 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using MaintenanceTracker.Models;
-using Microsoft.AspNetCore.Routing;
 using Radzen;
-using Radzen.Blazor;
 using Serilog;
 using System.ComponentModel.DataAnnotations;
 namespace MaintenanceTracker.ViewModels
@@ -10,6 +8,9 @@ namespace MaintenanceTracker.ViewModels
     public partial class HomePageViewModel : ObservableValidator
     {
         #region Parameters
+        /// <summary>
+        /// Internal list of Vehicle objects loaded and kept synchronized the the local.db.Vehicle table 
+        /// </summary>
         [ObservableProperty]
         [MaxLength(10)]
         public List<Vehicle> vehicleList;
@@ -20,9 +21,6 @@ namespace MaintenanceTracker.ViewModels
         [ObservableProperty]
         public Vehicle outgoingVehicle;
 
-        [ObservableProperty]
-        public RadzenDataGrid<Vehicle> dataGrid;
-
         public IDataModel dm;
 
         #endregion Parameters
@@ -30,12 +28,15 @@ namespace MaintenanceTracker.ViewModels
         public HomePageViewModel(IDataModel DM)
         {
             vehicleList = [];
-            DataGrid = new();
             OutgoingVehicle = new Vehicle();
             dm = DM;
         }
 
         #region DataFunctions
+        /// <summary>
+        /// Pulls all vehicles from local.db.Vehicle, and deletes any that may have maliciously entered the database
+        /// </summary>
+        /// <returns></returns>
         public Task LoadData()
         {
             VehicleList = dm.ReadVehicles();
@@ -47,9 +48,17 @@ namespace MaintenanceTracker.ViewModels
                     dm.DeleteVehicleWithPrejudice(v);
                 }
             }
+            // return dummy value, future work could require actual return values
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Delete row from Vehicle table by checking to make sure vehicle passed currently exists in the list, then calling
+        /// specific IDelayModel function DeleteVehicle. This creates minor separation between VehicleList and database, which
+        /// can skip db access time if value being deleted is not held locally
+        /// </summary>
+        /// <param name="vehicle"></param>
+        /// <returns>Result Tuple</returns>
         public async Task<(string, NotificationSeverity)> DeleteRow(Vehicle vehicle)
         {
             try
@@ -88,6 +97,12 @@ namespace MaintenanceTracker.ViewModels
             OutgoingVehicle = new();
         }
 
+        /// <summary>
+        /// Method handles Create/Update cases for database interaction after validating entries. 
+        /// Only handles single Vehicle instance at a time.
+        /// </summary>
+        /// <param name="vehicle"></param>
+        /// <returns>Result Tuple</returns>
         public async Task<(string, NotificationSeverity)> RowChangedHandler(Vehicle vehicle)
         {
             // check for validation explicitly

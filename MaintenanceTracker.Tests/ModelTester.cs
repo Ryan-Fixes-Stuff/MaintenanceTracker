@@ -31,6 +31,7 @@ namespace MaintenanceTracker.Tests
             //read
             List<Vehicle> vehicles = dm.ReadVehicles();
             Assert.NotNull(vehicles);
+            Assert.True(vehicles.Any());
             //update
             validVehicle.Year = 2011;
             int updateResult = await dm.UpdateVehicle(validVehicle, validVehicle.VIN);
