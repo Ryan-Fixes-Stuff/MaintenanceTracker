@@ -146,7 +146,7 @@ namespace MaintenanceTracker.ViewModels
                 }
                 else
                 {
-                    //fail state logic, add back pre-update vehicle
+                    //fail state logic
                     string returnMessage = $"Vehicle {OutgoingVehicle.VIN} Failed to Update";
                     OutgoingVehicle = new();
                     Log.Error("{Routine}: Vehicle " + OutgoingVehicle.VIN + " Failed to Update", "RowChangedHandler");

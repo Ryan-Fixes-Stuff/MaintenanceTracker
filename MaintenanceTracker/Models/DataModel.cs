@@ -4,9 +4,9 @@ using Microsoft.Data.Sqlite;
 using Serilog;
 namespace MaintenanceTracker.Models
 {
-    public class DataModel : IDataModel
+    public class DataModel(IConfiguration config) : IDataModel
     {
-        private string _dbConnString = "Default";
+        private readonly string _dbConnString = config.GetConnectionString("Default") ?? "error";
         public List<Vehicle> ReadVehicles()
         {
             try
@@ -106,11 +106,6 @@ namespace MaintenanceTracker.Models
                 Log.Error("Exception thrown in {Routine} for vehicle  " + vehicle.VIN + ": " + e.Message, "DeleteVehicleWithPrejudice");
                 return -1;
             }
-        }
-
-        public DataModel(IConfiguration config)
-        {
-            _dbConnString = config.GetConnectionString("Default") ?? "error";
         }
     }
 }

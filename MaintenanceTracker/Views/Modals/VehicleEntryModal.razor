@@ -72,10 +72,7 @@
     {
         if (!vehicle.Validate())
         {
-            if (dialogService is not null)
-            {
-                dialogService.Alert(message: "Please provide valid fields before submission", title: "Validation Error");
-            }
+            dialogService.Alert(message: "Please provide valid fields before submission", title: "Validation Error");
         } else
         {
             onClose();
@@ -86,10 +83,10 @@
     {
         if (vehicle.Validate())
         {
-            if (dialogService is not null) dialogService.Close(vehicle);
+            dialogService.Close(vehicle);
         } else
         {
-            if (dialogService is not null) dialogService.Close();
+            dialogService.Close();
         }
     }
 }
