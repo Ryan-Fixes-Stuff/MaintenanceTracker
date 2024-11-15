@@ -1,6 +1,7 @@
 using MaintenanceTracker.Models;
 using MaintenanceTracker.ViewModels;
 using MaintenanceTracker.Views;
+using Microsoft.AspNetCore.Components;
 using Radzen;
 using Serilog;
 
@@ -14,8 +15,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 // keep instance of IDataModel accessible for Blazor Components in case of injection need
 builder.Services.AddScoped<IDataModel, DataModel>();
-// pass a DataModel constructor for the ViewModel
+// pass a DataModel constructor for the ViewModels
 builder.Services.AddScoped(provider => new HomePageViewModel(new DataModel(config)));
+builder.Services.AddScoped(provider => new TaskPageViewModel(new DataModel(config)));
 // configure notification/modal services
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<DialogService>();

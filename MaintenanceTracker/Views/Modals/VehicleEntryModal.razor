@@ -1,5 +1,4 @@
-﻿@page "/testModal" 
-@using MaintenanceTracker.Models
+﻿@using MaintenanceTracker.Models
 
 <EditForm Model="vehicle">
     <DataAnnotationsValidator/>
@@ -10,7 +9,7 @@
         }
         else
         {
-            <h3>Update Vehicle Entry</h3>
+            <h3>Update Vehicle</h3>
         }
         <RadzenFormField Text="Enter VIN">
             <RadzenTextBox MaxLength="17" AutoCompleteType="AutoCompleteType.Off" oninput="this.value=this.value.toUpperCase()" @bind-Value="vehicle.VIN" Placeholder="Enter Vehicle VIN"

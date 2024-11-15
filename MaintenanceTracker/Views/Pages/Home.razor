@@ -1,9 +1,8 @@
 ﻿@using MaintenanceTracker.Views.Modals;
 @inject HomePageViewModel viewModel
-@*Inject IDataModel for show only, is not used in a View-style component like this*@
-@inject IDataModel dataModel
 @inject DialogService dialogService
 @inject NotificationService notifyService
+@inject NavigationManager navMan
 @rendermode InteractiveServer
 @page "/"
 
@@ -33,10 +32,11 @@
                     </RadzenDataGridColumn> 
                     <RadzenDataGridColumn Property="@nameof(Vehicle.Make)" TextAlign="TextAlign.Center" Title="Make"/>
                     <RadzenDataGridColumn Property="@nameof(Vehicle.Model)" TextAlign="TextAlign.Center" Title="Model"/>
-                    <RadzenDataGridColumn Width="10%" Property="@nameof(Vehicle.Year)" TextAlign="TextAlign.Center" Title="Year"/>
+                    <RadzenDataGridColumn Property="@nameof(Vehicle.Year)" TextAlign="TextAlign.Center" Title="Year"/>
                     <RadzenDataGridColumn Property="@nameof(Vehicle.Price)"FormatString="{0:C}"  TextAlign="TextAlign.Center" Title="Price"/>
-                    <RadzenDataGridColumn Width="10%" Context="Vehicle" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                    <RadzenDataGridColumn Context="Vehicle" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
                         <Template Context="Vehicle">
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="View" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => navMan.NavigateTo($"/tasks/{Vehicle.VIN}", true))" />
                             <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => LaunchVehicleModal(Vehicle, newVehicle: false))" @onclick:stopPropagation="true">
                             </RadzenButton>
                             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => AcceptDelete(Vehicle))" @onclick:stopPropagation="true">

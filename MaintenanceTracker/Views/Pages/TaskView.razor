@@ -1,0 +1,178 @@
+﻿@page "/tasks/{VIN}"
+@rendermode InteractiveServer
+@using MaintenanceTracker.Views.Modals
+@using System.Text.RegularExpressions
+@inject TaskPageViewModel viewModel
+@inject DialogService dialogService 
+@inject NotificationService notifyService
+@inject NavigationManager navMan
+
+<PageTitle>Maintance Task Manager</PageTitle>
+
+<div class="mainForm">
+    <div class="bgColumn" style="grid-column:1;">
+    </div>
+    <div style="grid-column:2;">
+        <div class="contentColumn">
+            <div style="grid-row:1">
+                <br />
+                <h1 style="align-items:center">Maintenance Task Management</h1>
+            </div>
+            <RadzenDataGrid Style="grid-row:3;align-self:start;" AllowAlternatingRows="true" AllowFiltering="true" AllowSorting="true"
+                            TItem="MaintenanceTask" Data="viewModel.TaskList">
+                <HeaderTemplate>
+                    <RadzenLabel Style="font-size:30pt;padding-left:20px" Text="Vehicle Tasks"></RadzenLabel>
+                </HeaderTemplate>
+                <Columns>
+                    @*Define Grid Columns based on Vehicle properties*@
+                    <RadzenDataGridColumn Property="@nameof(MaintenanceTask.VIN)" TextAlign="TextAlign.Center" Title="VIN">
+                        <FooterTemplate>
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Medium" Icon="add_circle" Text="Add New Task"
+                                          Click="@(args => LaunchTaskModal(new MaintenanceTask(), newTask: true))" @onclick:stopPropagation="true" />
+                        </FooterTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="@nameof(MaintenanceTask.TaskName)" TextAlign="TextAlign.Center" Title="Name" />
+                    <RadzenDataGridColumn Property="@nameof(MaintenanceTask.Status)" TextAlign="TextAlign.Center" Title="Status" />
+                    <RadzenDataGridColumn Property="@nameof(MaintenanceTask.InsertDatetime)" TextAlign="TextAlign.Center" Title="Assigned Date" />
+                    <RadzenDataGridColumn  Context="MaintenanceTask" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                        <Template Context="MaintenanceTask">
+                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => LaunchTaskModal(MaintenanceTask, newTask: false))" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => AcceptDelete(MaintenanceTask))" @onclick:stopPropagation="true">
+                            </RadzenButton>
+                        </Template>
+                        <FooterTemplate>
+                            <RadzenButton Text="Return" Size="ButtonSize.Medium" Style="ButtonStyle.Primary" Click="@(args => navMan.NavigateTo($"/"))" />
+                        </FooterTemplate>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+            <div style="grid-row:4">
+            </div>
+        </div>
+    </div>
+    <div class="bgColumn" style="grid-column:3;">
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string VIN { get; set; } = string.Empty;
+
+    #region LifecycleEvents
+    protected override async Task OnParametersSetAsync()
+    {
+        // if page called with invalid VIN, bounce back to homepage
+        if (!Regex.Match(VIN, "[A-HJ-NPR-Z0-9]{17}" ).Success)
+        {
+            navMan.NavigateTo("/", true);
+        }
+        viewModel.TaskVIN= VIN;
+        // load in TaskVehicle data
+        if (!VIN.Equals(viewModel.TaskVIN) || !viewModel.TaskList.Any())
+        {
+            await viewModel.LoadData();
+        }
+        await base.OnParametersSetAsync();
+    }
+    #endregion LifecycleEvents
+
+    #region ViewFunctions
+    /// <summary>
+    /// Function to call ViewModel validation and submission logic, and route Toast notification back to user
+    /// Could be re-worked to include delegate, but this use case only has 1 type of input possible
+    /// </summary>
+    /// <param name="task"></param>
+    /// <returns></returns>
+    private async Task AcceptChange(MaintenanceTask task)
+    {
+        (string msg, NotificationSeverity severity) res = await viewModel.RowChangedHandler(task);
+        notifyService.Notify(new NotificationMessage
+            {
+                Severity = res.severity,
+                Summary = res.msg,
+                Duration = 4000,
+                CloseOnClick = true
+            });
+    }
+
+    /// <summary>
+    /// Method handles all instances of the VehicleEntryModal, either for new or updated Vehicle.
+    /// Gets result back based on validation and exit state, and calls AcceptChange() if valid
+    /// </summary>
+    /// <param name="task"></param>
+    /// <param name="newTask"></param>
+    /// <returns></returns>
+    private async Task LaunchTaskModal(MaintenanceTask task, bool newTask)
+    {
+        viewModel.OutgoingTask = (MaintenanceTask)task.Shallowcopy();
+        task.VIN = viewModel.TaskVIN;
+        var response = await dialogService.OpenAsync<TaskEntryModal>("Task Entry", new Dictionary<string, object>()
+        {
+            {
+                "task", task.Shallowcopy()
+            },
+            {
+                "VIN", VIN
+            },
+            {
+                "dialogService", dialogService
+            },
+            {
+                "statusOptions", viewModel.StatusOptions
+            },
+            {
+                "newTask", newTask
+            }
+        }, new DialogOptions()
+        {
+            Resizable = false,
+            Width = "25%",
+            AutoFocusFirstElement = true,
+            CloseDialogOnOverlayClick = true
+        });
+        if (response != null)
+        {
+            await AcceptChange((MaintenanceTask)response);
+        }
+        else
+        {
+            viewModel.CancelRowEdit();
+            notifyService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = (newTask ? "Task Creation Cancelled" : "Task Update Cancelled"),
+                    Duration = 3000,
+                    CloseOnClick = true
+                });
+        }
+    }
+
+    /// <summary>
+    /// Simple modal confirmation dialogue for deleting a particular Vehicle from the db.
+    /// Calls it's own ViewModel function if confirmed yes, and reports result to user via Toast notification
+    /// </summary>
+    /// <param name="task"></param>
+    private async void AcceptDelete(MaintenanceTask task)
+    {
+        var _confirmSubmission = await dialogService.Confirm($"Confirm Deletion of Task {task.TaskName}?", "Task Deletion Confirmation",
+                                                  new ConfirmOptions()
+                                                      {
+                                                          OkButtonText = "Yes",
+                                                          CancelButtonText = "No",
+                                                      });
+        if (_confirmSubmission.HasValue && _confirmSubmission.Value == true)
+        {
+            (string msg, NotificationSeverity severity) res = await viewModel.DeleteRow(task);
+            notifyService.Notify(new NotificationMessage
+                {
+                    Severity = res.severity,
+                    Summary = res.msg,
+                    Duration = 4000,
+                    CloseOnClick = true
+                });
+            StateHasChanged();
+        }
+    }
+    #endregion ViewFunctions
+}

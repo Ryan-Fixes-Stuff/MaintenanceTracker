@@ -137,7 +137,16 @@ namespace MaintenanceTracker.ViewModels
                 int numUpdated = await dm.UpdateVehicle(vehicle, OutgoingVehicle.VIN);
                 if (numUpdated == 1)
                 {
-                    // sync list to db 
+                    // update all tasks associated with previous VIN if VIN changed
+                    if (!OutgoingVehicle.VIN.Equals(vehicle.VIN))
+                    {
+                        List<MaintenanceTask> tasks = dm.ReadTasks(OutgoingVehicle.VIN);
+                        foreach (MaintenanceTask task in tasks)
+                        {
+                            task.VIN = vehicle.VIN;
+                            await dm.UpdateTask(task, OutgoingVehicle.VIN, task.TaskName);
+                        }
+                    }                   
                     await LoadData();
                     string returnMessage = $"Vehicle {OutgoingVehicle.VIN} Successfully Updated";
                     OutgoingVehicle = new();
@@ -167,9 +176,5 @@ namespace MaintenanceTracker.ViewModels
         }
         #endregion OnPropertyChangedHandlers
 
-        #region ViewFunctions
-
-
-        #endregion ViewFunctions
     }
 }

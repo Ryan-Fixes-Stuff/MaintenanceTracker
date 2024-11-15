@@ -1,5 +1,5 @@
 # MaintenanceTracker
-.NET 8 Blazor web application used to maintain internal database with a list of up to 10 vehicles
+.NET 8 Blazor web application used to maintain list of up to 10 Vehicles and their associated Maintenance Tasks
 
 
 ## Prominent Technologies Used

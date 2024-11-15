@@ -1,0 +1,85 @@
+﻿@using MaintenanceTracker.Models
+
+<EditForm Model="task">
+    <DataAnnotationsValidator />
+    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center">
+        @if (newTask)
+        {
+            <h3>New Task Entry</h3>
+        }
+        else
+        {
+            <h3>Update Task</h3>
+        }
+        <RadzenFormField Text="Enter Task Name">
+            <RadzenTextBox AutoCompleteType="AutoCompleteType.Off" MaxLength="15" @bind-Value="task.TaskName" Style="width:200px; display: block"
+                           Name="Make" aria-label="Enter Task Name" />
+        </RadzenFormField>
+        <RadzenFormField Text="Select Status">
+            <RadzenDropDown @bind-Value="task.Status" Data="statusOptions" Style="width:200px; display: block"
+                           Name="Model" aria-label="Select Task Status" />
+        </RadzenFormField>
+
+        <ValidationSummary />
+        <RadzenButton Text="Submit Vehicle" Click="onSubmit"></RadzenButton>
+    </RadzenStack>
+
+</EditForm>
+
+@code {
+    [Parameter]
+    public string VIN { get; set; } = string.Empty;
+    
+    [Parameter]
+    public MaintenanceTask task { get; set; } = new();
+
+    [Parameter]
+    public List<string> statusOptions { get; set; } = new();
+
+    [Parameter]
+    public bool newTask { get; set; }
+
+    /// <summary>
+    /// Allows us to return information from the modal back to the caller service.
+    /// Initializing to new() as a worst-case allows us to gracefully close the modal regardless of destination
+    /// </summary>
+    [Parameter]
+    public DialogService dialogService { get; set; } = new(null, null);
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (task == null)
+        {
+            task = new();
+        }
+        if (dialogService == null)
+        {
+            dialogService = new(null, null);
+        }
+    }
+
+    public void onSubmit()
+    {
+        if (!task.Validate())
+        {
+            dialogService.Alert(message: "Please provide valid fields before submission", title: "Validation Error");
+        }
+        else
+        {
+            onClose(true);
+        }
+    }
+
+    public void onClose(bool validSubmission = false)
+    {
+        if (validSubmission)
+        {
+            dialogService.Close(task);
+        }
+        else
+        {
+            dialogService.Close();
+        }
+    }
+}
