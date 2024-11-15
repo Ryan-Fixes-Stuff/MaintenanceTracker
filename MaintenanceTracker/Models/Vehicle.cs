@@ -14,8 +14,8 @@ namespace MaintenanceTracker.Models
         [MaxLength(20), MinLength(1)]
         public string Model { get; set; } = string.Empty;
         [Required]
-        [Range(1900, 2025)]
-        public int Year { get; set; } = 1900;
+        [Range(1900, 2026)]
+        public int Year { get; set; } = DateTime.Now.Year;
         [Required]
         [Range(0.0, 200000.0)]
         public double Price { get; set; } = 0.0;
@@ -25,7 +25,7 @@ namespace MaintenanceTracker.Models
             VIN = string.Empty;
             Make = string.Empty;
             Model = string.Empty;
-            Year = 1900;
+            Year = DateTime.Now.Year;
             Price = 0.0;
         }
 

@@ -19,8 +19,7 @@
 
 .contentColumn {
     display:grid;
-    grid-template-rows: 1fr 1fr 20fr 1fr;
-    grid-template-columns: auto;
+    grid-template-rows: 1fr 1fr 12fr;
     text-align: center;
     align-items: center;
     padding: 0px 10px 0px 10px;
